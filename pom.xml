@@ -10,10 +10,11 @@
     <packaging>war</packaging>
 
     <dependencies>
+        <!-- Source: https://mvnrepository.com/artifact/jakarta.persistence/jakarta.persistence-api -->
         <dependency>
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
-            <version>3.1.0</version>
+            <version>3.2.0</version>
             <scope>provided</scope>
         </dependency>
 
@@ -23,6 +24,15 @@
             <artifactId>lombok</artifactId>
             <version>1.18.42</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- Source:
+        https://mvnrepository.com/artifact/jakarta.enterprise/jakarta.enterprise.cdi-api -->
+        <dependency>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+            <version>4.1.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
