@@ -1,0 +1,1 @@
+/subsystem=datasources/data-source=PostgreDS:add(jndi-name="java:/jdbc/postgres_db",driver-name=postgresql,connection-url="jdbc:postgresql://postgres:${env.HOST_PORT}/finance-wallet-db",user-name=${env.ROOT_USER},password=${env.ROOT_USER_PASSWORD},enabled=true)
