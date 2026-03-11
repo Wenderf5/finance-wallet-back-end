@@ -1,6 +1,8 @@
-package com.financewallet.dataBase.entities;
+package com.financewallet.dataBase.repositories;
 
 import java.util.Optional;
+
+import com.financewallet.dataBase.entities.UserEntity;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;

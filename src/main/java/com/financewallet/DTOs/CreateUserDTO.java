@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO {
+public class CreateUserDTO {
     @NotNull(message = "The field 'email' must not be null.")
     @NotEmpty(message = "The field 'email' must not be empty.")
     @NotBlank(message = "The field 'email' must not be blank.")
@@ -34,9 +34,4 @@ public class UserDTO {
     @NotEmpty(message = "The field 'userName' must not be empty.")
     @NotBlank(message = "The field 'userName' must not be blank.")
     private String userName;
-
-    @NotNull(message = "The field 'photo' must not be null.")
-    @NotEmpty(message = "The field 'photo' must not be empty.")
-    @NotBlank(message = "The field 'photo' must not be blank.")
-    private String photo;
 }

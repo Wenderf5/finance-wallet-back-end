@@ -1,6 +1,6 @@
 package com.financewallet.controllers;
 
-import com.financewallet.DTOs.UserDTO;
+import com.financewallet.DTOs.CreateUserDTO;
 import com.financewallet.services.UserService;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -14,7 +14,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-@Path("/user")
+@Path("/v1/user")
 public class UserController {
     @Inject
     private UserService userService;
@@ -23,7 +23,7 @@ public class UserController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createUser(@Valid UserDTO body) {
+    public Response createUser(@Valid CreateUserDTO body) {
         this.userService.createUser(body);
 
         JsonObject responseJson = new JsonObject();

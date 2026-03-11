@@ -11,10 +11,10 @@ import jakarta.ws.rs.ext.Provider;
 
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
-public class GenericExceptionMapper implements ExceptionMapper<Exception> {
+public class GenericExceptionMapper implements ExceptionMapper<RuntimeException> {
     private Gson gson = new Gson();
 
-    public Response toResponse(Exception ex) {
+    public Response toResponse(RuntimeException ex) {
         JsonObject responseJson = new JsonObject();
         responseJson.addProperty("status", Response.Status.BAD_REQUEST.getStatusCode());
         responseJson.addProperty("message", ex.getMessage());
