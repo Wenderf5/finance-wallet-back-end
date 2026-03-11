@@ -20,26 +20,6 @@
 > ```
 ---
 
-> ***/api/v1/user***
->
-> POST: Create a new user </br>
-> Request body:
-> ```json
-> {
->    "email": "string",
->    "password": "string",
->    "userName": "string"
-> }
-> ```
-> Response body:
-> ```json
-> {
->     "status": "number",
->     "message": "string"
-> }
-> ```
----
-
 ## Services
 
 > ***E-mail service***
