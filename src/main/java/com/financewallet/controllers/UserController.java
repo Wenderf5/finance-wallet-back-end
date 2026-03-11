@@ -12,6 +12,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 
 @Path("/v1/user")
@@ -24,15 +25,24 @@ public class UserController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createUser(@Valid CreateUserDTO body) {
-        this.userService.createUser(body);
+        String createUserSessionToken = this.userService.generateSaveAndSendEmailCode(body);
 
         JsonObject responseJson = new JsonObject();
-        responseJson.addProperty("status", Response.Status.CREATED.getStatusCode());
-        responseJson.addProperty("message", "User created successfully.");
+        responseJson.addProperty("status", Response.Status.OK.getStatusCode());
+        responseJson.addProperty("message", "Confirmation code sent to email address '" + body.getEmail() + "'");
         String responseJsonString = this.gson.toJson(responseJson);
 
+        NewCookie sessionCookie = new NewCookie.Builder("createUserSessionToken")
+                .value(createUserSessionToken)
+                .path("/")
+                .maxAge(3600)
+                .secure(false) 
+                .httpOnly(true)
+                .build();
+
         return Response
-                .status(Response.Status.CREATED)
+                .status(Response.Status.OK)
+                .cookie(sessionCookie)
                 .entity(responseJsonString)
                 .build();
     }
