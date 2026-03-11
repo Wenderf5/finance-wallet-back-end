@@ -2,7 +2,8 @@
 
 > ***/api/v1/user***
 >
-> POST: Create a new user </br>
+> POST: Verifica se o usuário já existe, gera e envia um código de confirmação de E-mail e seta um cookei de sessão para criar uma conta. </br>
+>
 > Request body:
 > ```json
 > {
