@@ -33,3 +33,8 @@
 > mail.smtp.starttls.enable
 > ```
 ---
+
+> ***Redis template***
+>
+> A classe RedisTemplate no pacote `com.financewallet.redis.RedisTemplate.java` é um cliente redis síncrono que usa a lib lettuce. Usa a variável de ambiente `REDIS_URL_CONNECTION` no modelo `redis://:password@host:port`, pode ser injetado com a classe `RedisTemplate` e contém métodos como `RedisTemplate.set(String key, String value)` e `RedisTemplate.get(String key)`.
+---
