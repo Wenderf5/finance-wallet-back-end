@@ -33,10 +33,33 @@ public class RedisTemplate {
             if (result == null) {
                 throw new Exception("The " + key + " key was not found.");
             }
-            
+
             connection.close();
-            
+
             return result;
+        } catch (Exception e) {
+            throw new RedisOperationException(e.getMessage());
+        }
+    }
+
+    public Long getTtl(String key) {
+        try {
+            StatefulRedisConnection<String, String> connection = this.client.connect();
+            RedisCommands<String, String> redisCommands = connection.sync();
+
+            Long ttl = redisCommands.ttl(key);
+            if (ttl == -1) {
+                connection.close();
+                throw new Exception("The '" + key + "' key has not ttl.");
+            }
+            if (ttl == -2) {
+                connection.close();
+                throw new Exception("The '" + key + "' key was not found.");
+            }
+
+            connection.close();
+
+            return ttl;
         } catch (Exception e) {
             throw new RedisOperationException(e.getMessage());
         }
