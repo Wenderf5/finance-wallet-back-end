@@ -21,7 +21,9 @@ import jakarta.ws.rs.core.Response;
 public class UserController {
     @Inject
     private UserService userService;
-    private Gson gson = new Gson();
+    
+    @Inject
+    private Gson gson;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)

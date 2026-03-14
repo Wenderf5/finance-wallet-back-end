@@ -4,6 +4,7 @@ import com.financewallet.exceptions.EmailAlreadyExistException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import jakarta.inject.Inject;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -13,7 +14,8 @@ import jakarta.ws.rs.ext.Provider;
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 public class EmailAlreadyExistExceptionMapper implements ExceptionMapper<EmailAlreadyExistException> {
-    private Gson gson = new Gson();
+    @Inject
+    private Gson gson;
 
     @Override
     public Response toResponse(EmailAlreadyExistException ex) {

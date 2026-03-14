@@ -4,6 +4,7 @@ import com.financewallet.DTOs.CreateUserDTO;
 import com.financewallet.dataBase.entities.UserEntity;
 import com.financewallet.dataBase.repositories.UserRepository;
 import com.financewallet.exceptions.EmailAlreadyExistException;
+import com.financewallet.exceptions.InvalidEmailCodeException;
 import com.financewallet.exceptions.UnauthorizedException;
 import com.financewallet.redis.RedisTemplate;
 import com.google.gson.Gson;
@@ -29,6 +30,8 @@ public class UserService {
 
     @Inject
     private EmailService emailService;
+
+    @Inject Gson gson;
 
     public Optional<UserEntity> isUserExist(String email) {
         return this.userRepository.findByEmail(email);
@@ -60,7 +63,7 @@ public class UserService {
             jsonObject.addProperty("userName", user.getUserName());
             jsonObject.addProperty("emailCode", emailCode);
 
-            String jsonValue = new Gson().toJson(jsonObject);
+            String jsonValue = this.gson.toJson(jsonObject);
             redisTemplate.set(createUserSessionToken, jsonValue, 300L);
 
             Properties props = new Properties();
@@ -82,7 +85,25 @@ public class UserService {
 
             return createUserSessionToken;
         } catch (Exception e) {
-            throw new RuntimeException("Error registering user.");
+            throw new RuntimeException("Error registering user");
+        }
+    }
+
+    public Boolean verifyEmailCode(String token, String code) {
+        try {
+            String jsonValue = this.redisTemplate.get(token);
+            JsonObject jsonObject = this.gson.fromJson(jsonValue, JsonObject.class);
+            String emailCode = jsonObject.get("emailCode").getAsString();
+
+            if (!emailCode.equals(code)) {
+                throw new InvalidEmailCodeException("Invalid code");
+            }
+
+            return true;
+        } catch (InvalidEmailCodeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error verifying code");
         }
     }
 
