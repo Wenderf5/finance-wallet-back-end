@@ -4,6 +4,7 @@ import com.financewallet.DTOs.CreateUserDTO;
 import com.financewallet.dataBase.entities.UserEntity;
 import com.financewallet.dataBase.repositories.UserRepository;
 import com.financewallet.exceptions.EmailAlreadyExistException;
+import com.financewallet.exceptions.InvalidEmailCodeException;
 import com.financewallet.exceptions.UnauthorizedException;
 import com.financewallet.redis.RedisTemplate;
 import com.google.gson.Gson;
@@ -29,6 +30,12 @@ public class UserService {
 
     @Inject
     private EmailService emailService;
+
+    @Inject
+    JwtService jwtService;
+
+    @Inject
+    Gson gson;
 
     public Optional<UserEntity> isUserExist(String email) {
         return this.userRepository.findByEmail(email);
@@ -60,7 +67,7 @@ public class UserService {
             jsonObject.addProperty("userName", user.getUserName());
             jsonObject.addProperty("emailCode", emailCode);
 
-            String jsonValue = new Gson().toJson(jsonObject);
+            String jsonValue = this.gson.toJson(jsonObject);
             redisTemplate.set(createUserSessionToken, jsonValue, 300L);
 
             Properties props = new Properties();
@@ -82,20 +89,49 @@ public class UserService {
 
             return createUserSessionToken;
         } catch (Exception e) {
-            throw new RuntimeException("Error registering user.");
+            throw new RuntimeException("Error registering user");
+        }
+    }
+
+    public CreateUserDTO verifyEmailCode(String token, String code) {
+        try {
+            String jsonValue = this.redisTemplate.get(token);
+            JsonObject jsonObject = this.gson.fromJson(jsonValue, JsonObject.class);
+            String email = jsonObject.get("email").getAsString();
+            String password = jsonObject.get("password").getAsString();
+            String userName = jsonObject.get("userName").getAsString();
+            String emailCode = jsonObject.get("emailCode").getAsString();
+
+            if (!emailCode.equals(code)) {
+                throw new InvalidEmailCodeException("Invalid code");
+            }
+
+            return new CreateUserDTO(email, password, userName);
+        } catch (InvalidEmailCodeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error verifying code");
         }
     }
 
     @Transactional
-    public void createUser(CreateUserDTO user) {
+    public String createUser(String key, String code) {
+        CreateUserDTO createUser = verifyEmailCode(key, code);
+
         try {
             UserEntity newUser = new UserEntity(
-                    user.getEmail(),
-                    user.getPassword(),
-                    user.getUserName(),
+                    createUser.getEmail(),
+                    createUser.getPassword(),
+                    createUser.getUserName(),
                     "test-photo-link");
 
             this.userRepository.save(newUser);
+            this.redisTemplate.delete(key);
+            String sessionToken = this.jwtService.generateToken(
+                    createUser.getUserName(),
+                    createUser.getEmail());
+
+            return sessionToken;
         } catch (Exception e) {
             if (isConstraintViolation(e)) {
                 throw new EmailAlreadyExistException("This email address is already in use.");
