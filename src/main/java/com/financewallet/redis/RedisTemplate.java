@@ -53,6 +53,23 @@ public class RedisTemplate {
         }
     }
 
+    public void delete(String key) {
+        try {
+            StatefulRedisConnection<String, String> connection = this.client.connect();
+            RedisCommands<String, String> redisCommands = connection.sync();
+
+            Long result = redisCommands.del(key);
+
+            if (result == 0) {
+                throw new Exception("The '" + key + "' key was not found.");
+            }
+
+            connection.close();
+        } catch (Exception e) {
+            throw new RedisOperationException(e.getMessage());
+        }
+    }
+
     public Long getTtl(String key) {
         try {
             StatefulRedisConnection<String, String> connection = this.client.connect();

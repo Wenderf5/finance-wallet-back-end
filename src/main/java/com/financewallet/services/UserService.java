@@ -31,7 +31,11 @@ public class UserService {
     @Inject
     private EmailService emailService;
 
-    @Inject Gson gson;
+    @Inject
+    JwtService jwtService;
+
+    @Inject
+    Gson gson;
 
     public Optional<UserEntity> isUserExist(String email) {
         return this.userRepository.findByEmail(email);
@@ -89,17 +93,19 @@ public class UserService {
         }
     }
 
-    public Boolean verifyEmailCode(String token, String code) {
+    public CreateUserDTO verifyEmailCode(String token, String code) {
         try {
             String jsonValue = this.redisTemplate.get(token);
             JsonObject jsonObject = this.gson.fromJson(jsonValue, JsonObject.class);
             String emailCode = jsonObject.get("emailCode").getAsString();
+            String password = jsonObject.get("password").getAsString();
+            String userName = jsonObject.get("userName").getAsString();
 
             if (!emailCode.equals(code)) {
                 throw new InvalidEmailCodeException("Invalid code");
             }
 
-            return true;
+            return new CreateUserDTO(emailCode, password, userName);
         } catch (InvalidEmailCodeException e) {
             throw e;
         } catch (Exception e) {
@@ -108,15 +114,23 @@ public class UserService {
     }
 
     @Transactional
-    public void createUser(CreateUserDTO user) {
+    public String createUser(String key, String code) {
+        CreateUserDTO createUser = verifyEmailCode(key, code);
+
         try {
             UserEntity newUser = new UserEntity(
-                    user.getEmail(),
-                    user.getPassword(),
-                    user.getUserName(),
+                    createUser.getEmail(),
+                    createUser.getPassword(),
+                    createUser.getUserName(),
                     "test-photo-link");
 
             this.userRepository.save(newUser);
+            this.redisTemplate.delete(key);
+            String sessionToken = this.jwtService.generateToken(
+                    createUser.getUserName(),
+                    createUser.getEmail());
+
+            return sessionToken;
         } catch (Exception e) {
             if (isConstraintViolation(e)) {
                 throw new EmailAlreadyExistException("This email address is already in use.");
