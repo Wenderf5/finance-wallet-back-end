@@ -1,6 +1,7 @@
 package com.financewallet.controllers;
 
 import com.financewallet.DTOs.CreateUserDTO;
+import com.financewallet.DTOs.EmailConfirmationCodeDTO;
 import com.financewallet.services.UserService;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -21,7 +22,7 @@ import jakarta.ws.rs.core.Response;
 public class UserController {
     @Inject
     private UserService userService;
-    
+
     @Inject
     private Gson gson;
 
@@ -64,12 +65,55 @@ public class UserController {
 
         JsonObject responseJson = new JsonObject();
         responseJson.addProperty("status", Response.Status.OK.getStatusCode());
-        responseJson.addProperty("seconds_to_expire:", ttl);
+        responseJson.addProperty("seconds_to_expire", ttl);
 
         String reponseJsonString = this.gson.toJson(responseJson);
 
         return Response
                 .status(Response.Status.OK)
+                .entity(reponseJsonString)
+                .build();
+    }
+
+    @POST
+    @Path("/create")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response verifyEmailCode(
+            @CookieParam("createUserSessionToken") String createUserSessionToken,
+            @Valid EmailConfirmationCodeDTO body) {
+        if (createUserSessionToken == null || createUserSessionToken.isEmpty()) {
+            return Response
+                    .status(Response.Status.UNAUTHORIZED)
+                    .build();
+        }
+
+        String sessionToken = this.userService.createUser(createUserSessionToken, body.getEmailCode());
+
+        JsonObject responseJson = new JsonObject();
+        responseJson.addProperty("status", Response.Status.CREATED.getStatusCode());
+        responseJson.addProperty("message:", "User created successfully");
+        String reponseJsonString = this.gson.toJson(responseJson);
+
+        NewCookie sessionCookie = new NewCookie.Builder("sessionToken")
+                .value(sessionToken)
+                .path("/")
+                .maxAge(604800)
+                .secure(false)
+                .httpOnly(true)
+                .build();
+
+        NewCookie deleteCookie = new NewCookie.Builder("createUserSessionToken")
+                .value("")
+                .path("/")
+                .maxAge(0)
+                .secure(false)
+                .httpOnly(true)
+                .build();
+
+        return Response
+                .status(Response.Status.CREATED)
+                .cookie(sessionCookie, deleteCookie)
                 .entity(reponseJsonString)
                 .build();
     }

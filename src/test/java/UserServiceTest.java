@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.financewallet.DTOs.CreateUserDTO;
 import com.financewallet.dataBase.repositories.UserRepository;
 import com.financewallet.redis.RedisTemplate;
 import com.financewallet.services.EmailService;
@@ -25,8 +26,8 @@ public class UserServiceTest {
 
     @Mock
     private EmailService emailService;
-    
-    @Mock 
+
+    @Mock
     private JsonObject jsonObject;
 
     @Mock
@@ -41,41 +42,51 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldReturnTrue() {
+    public void shouldReturnCreateUserDTO() {
         String jsonValue = "{"
                 + "\"email\": \"test@email.com\","
                 + "\"password\": \"testPassword\","
                 + "\"userName\": \"testUserName\","
                 + "\"emailCode\": \"testCode\""
                 + "}";
-        
+
         JsonObject mockJsonObject = new JsonObject();
+        mockJsonObject.addProperty("email", "test@email.com");
+        mockJsonObject.addProperty("password", "testPassword");
+        mockJsonObject.addProperty("userName", "testUserName");
         mockJsonObject.addProperty("emailCode", "testCode");
+        CreateUserDTO user = new CreateUserDTO("test@email.com", "testPassword", "testUserName");
 
         when(this.redisTemplate.get("testKey")).thenReturn(jsonValue);
         when(this.gson.fromJson(jsonValue, JsonObject.class)).thenReturn(mockJsonObject);
 
-        Boolean result = this.userService.verifyEmailCode("testKey", "testCode");
+        CreateUserDTO result = this.userService.verifyEmailCode("testKey", "testCode");
 
-        assertEquals(true, result);
+        assertEquals(user.getEmail(), result.getEmail());
+        assertEquals(user.getPassword(), result.getPassword());
+        assertEquals(user.getUserName(), result.getUserName());
     }
+
     @Test
     public void shouldThrowInvalidEmailCodeException() {
         String jsonValue = "{"
                 + "\"email\": \"test@email.com\","
                 + "\"password\": \"testPassword\","
                 + "\"userName\": \"testUserName\","
-                + "\"emailCode\": \"wrongCode\""
+                + "\"emailCode\": \"testCode\""
                 + "}";
-        
+
         JsonObject mockJsonObject = new JsonObject();
-        mockJsonObject.addProperty("emailCode", "wrongCode");
+        mockJsonObject.addProperty("email", "test@email.com");
+        mockJsonObject.addProperty("password", "testPassword");
+        mockJsonObject.addProperty("userName", "testUserName");
+        mockJsonObject.addProperty("emailCode", "testCode");
 
         when(this.redisTemplate.get("testKey")).thenReturn(jsonValue);
         when(this.gson.fromJson(jsonValue, JsonObject.class)).thenReturn(mockJsonObject);
 
         InvalidEmailCodeException exception = assertThrows(InvalidEmailCodeException.class, () -> {
-            this.userService.verifyEmailCode("testKey", "testCode");
+            this.userService.verifyEmailCode("testKey", "wrongCode");
         });
 
         assertEquals("Invalid code", exception.getMessage());

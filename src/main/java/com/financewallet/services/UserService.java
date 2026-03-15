@@ -97,15 +97,16 @@ public class UserService {
         try {
             String jsonValue = this.redisTemplate.get(token);
             JsonObject jsonObject = this.gson.fromJson(jsonValue, JsonObject.class);
-            String emailCode = jsonObject.get("emailCode").getAsString();
+            String email = jsonObject.get("email").getAsString();
             String password = jsonObject.get("password").getAsString();
             String userName = jsonObject.get("userName").getAsString();
+            String emailCode = jsonObject.get("emailCode").getAsString();
 
             if (!emailCode.equals(code)) {
                 throw new InvalidEmailCodeException("Invalid code");
             }
 
-            return new CreateUserDTO(emailCode, password, userName);
+            return new CreateUserDTO(email, password, userName);
         } catch (InvalidEmailCodeException e) {
             throw e;
         } catch (Exception e) {
