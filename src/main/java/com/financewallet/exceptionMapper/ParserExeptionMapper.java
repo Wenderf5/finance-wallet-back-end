@@ -3,6 +3,7 @@ package com.financewallet.exceptionMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import jakarta.inject.Inject;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
@@ -13,7 +14,8 @@ import jakarta.ws.rs.ext.Provider;
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 public class ParserExeptionMapper implements ExceptionMapper<ProcessingException> {
-    private Gson gson = new Gson();
+    @Inject
+    private Gson gson;
 
     public Response toResponse(ProcessingException ex) {
         JsonObject responseJson = new JsonObject();
