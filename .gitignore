@@ -1,4 +1,0 @@
-/target
-.env.development
-docker-compose.yml
-/.idea
