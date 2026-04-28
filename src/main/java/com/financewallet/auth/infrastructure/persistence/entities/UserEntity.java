@@ -1,32 +1,45 @@
-package com.financewallet.auth.domain.entities;
+package com.financewallet.auth.infrastructure.persistence.entities;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class User {
+@Entity
+@Table(name = "users")
+public class UserEntity {
+    @Id
+    @Column(name = "id", nullable = false)
     private UUID id;
+
+    @Column(name = "user_name", nullable = false)
     private String userName;
+
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
+
+    @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "photo_url", nullable = false)
     private String photoUrl;
+
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    public User(UUID id, String userName, String email, String password, String photoUrl, LocalDateTime createdAt) {
+    public UserEntity() {
+    }
+
+    public UserEntity(UUID id, String userName, String email, String password, String photoUrl, LocalDateTime createdAt) {
         this.id = id;
         this.userName = userName;
         this.email = email;
         this.password = password;
         this.photoUrl = photoUrl;
         this.createdAt = createdAt;
-    }
-
-    public User(String userName, String email, String password, String photoUrl) {
-        this.id = UUID.randomUUID();
-        this.userName = userName;
-        this.email = email;
-        this.password = password;
-        this.photoUrl = photoUrl;
-        this.createdAt = LocalDateTime.now();
     }
 
     public UUID getId() {
