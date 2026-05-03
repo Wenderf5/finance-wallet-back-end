@@ -1,9 +1,19 @@
 server:
   port: ${APPLICATION_PORT}
-
 spring:
   application:
     name: auth
+  mail:
+    host: ${EMAIL_SERVER_HOST:test}
+    port: ${EMAIL_SERVER_PORT:000}
+    username: ${EMAIL_SERVER_USER:test}
+    password: ${EMAIL_SERVER_PASSWORD:test}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
     username: ${POSTGRES_USER}
