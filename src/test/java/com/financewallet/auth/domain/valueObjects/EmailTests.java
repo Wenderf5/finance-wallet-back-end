@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EmailTests {
-
     @Test
     void shouldCreateEmailWhenEmailIsValid() {
         assertDoesNotThrow(() -> new Email("user@email.com"));
